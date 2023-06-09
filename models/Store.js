@@ -21,10 +21,12 @@ const storeSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    category:{
+    category:[{
         type:String,
-        required:true
-    },
+    }],
+    subcategory:[{
+        type:String,
+    }],
     products:[
         {
             type:mongoose.Schema.Types.ObjectId,

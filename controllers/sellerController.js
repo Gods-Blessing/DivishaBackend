@@ -132,17 +132,51 @@ module.exports.register =async function(req,res){
 }
 
 
+// adding category & sub category
+module.exports.Addingcategory = async function(req,res){
+
+    const seller = await User.findById(req.user);
+    const store = await Store.findById(seller.store)
+
+    if(req.body.category){
+        store.category.push(req.body.category);
+    }
+
+    if(req.body.subcategory){
+        store.subcategory.push(req.body.subcategory);
+    }
+
+    await store.save();
+
+    return res.status(200).json({
+        data:{
+            message:"category subcategory added"
+        }
+    })
+    
+}
+
+
 
 // adding products
 module.exports.AddingProduct =async function(req,res){
 
+    const seller = await User.findById(req.user);
+    const store = await Store.findById(seller.store);
+
+
     const product =await Product.create({
+        store:store.id,
         productname:req.body.name,
         mrp:req.body.mrp,
         sp:req.body.sp,
         qty:req.body.qty,
     });
 
+
+    store.products.push(product);
+
+    await store.save();
 
 
     return res.status(200).json({
