@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/Seller');
+const Store = require('../models/Store');
 
 
 
@@ -98,51 +99,56 @@ module.exports.signin =async function(req,res){
 
 
 
-
+// registering store
 module.exports.register =async function(req,res){
-    let contenttype;
-    if(req.file.mimetype == "video/mp4"){
-        contenttype = "video"
-    }else{
-        contenttype = "img"
-    }
     
-    const post = await Post.create({
-        content: req.body.content,
-        user:req.user._id,
-        imgvid:req.file.path.substring(47),
-        contenttype: contenttype
+    const store = await Store.create({
+        seller:req.user._id,
+        address: req.body.content,
+        gst:req.body.gst,
+        logo:req.file.path.substring(47),
+        timing:req.body.timing,
     });
 
-    await post.populate('user');
+    await store.populate('seller');
 
-    
+    const user = await User.findById(req.user._id);
 
-    // console.log(req.file.path.substring(47))
-    // console.log(post)
-    const user =await User.findById(req.user._id);
-    // console.log(user);
-
-    user.posts.push(post);
+    user.store = store._id;
 
     user.save();
-    if(req.xhr){
-        if(post){
+    if(store){
             return res.status(200).json({
                 message:{
-                    data:post
+                    data:store
                 }
             })
-        }
+    }
 
         return res.status(200).json({
             error:"Post not created"
         })
-    }
-    // console.log(req.file);
-    return res.redirect("back");
+
 }
 
+
+
+// adding products
+module.exports.AddingProduct =async function(req,res){
+
+    const product =await Product.create({
+        productname:req.body.name,
+        mrp:req.body.mrp,
+        sp:req.body.sp,
+        qty:req.body.qty,
+    });
+
+
+
+    return res.status(200).json({
+        message:'product added'
+    })
+}
 
 
 
